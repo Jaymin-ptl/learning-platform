@@ -1,0 +1,16 @@
+-- ============================================================
+-- V6: Document placeholder webhook URL fix
+-- ============================================================
+-- The V4 migration inserted a placeholder webhook URL for the 'Daily Learning'
+-- channel. On startup, ChannelWebhookInitializer automatically replaces any
+-- placeholder URL with the value of the TEAMS_DEFAULT_WEBHOOK_URL environment
+-- variable.
+--
+-- If you need to update the webhook URL manually, run:
+--   UPDATE teams_channels
+--   SET    webhook_url = '<your-real-teams-webhook-url>'
+--   WHERE  name = 'Daily Learning';
+--
+-- This migration is intentionally a no-op SQL statement; the actual URL
+-- update is handled at application startup by ChannelWebhookInitializer.
+SELECT 1;
