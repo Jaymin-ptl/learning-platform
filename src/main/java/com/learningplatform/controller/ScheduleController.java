@@ -58,6 +58,13 @@ public class ScheduleController {
         return ResponseEntity.ok(ApiResponse.ok(msg, response));
     }
 
+    @PostMapping("/{id}/trigger")
+    @Operation(summary = "Manually trigger a schedule immediately (fires the Teams notification now)")
+    public ResponseEntity<ApiResponse<Void>> triggerNow(@PathVariable Long id) {
+        scheduleService.triggerNow(id);
+        return ResponseEntity.ok(ApiResponse.ok("Schedule triggered successfully — tip will be sent momentarily", null));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a schedule and remove its Quartz job")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {

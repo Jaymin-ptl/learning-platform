@@ -118,6 +118,16 @@ public class ScheduleService {
         log.info("Schedule '{}' deleted", schedule.getName());
     }
 
+    public void triggerNow(Long id) {
+        // Verify schedule exists and is active before triggering
+        Schedule schedule = getOrThrow(id);
+        if (!schedule.isActive()) {
+            throw new com.learningplatform.exception.SchedulerException("Cannot trigger inactive schedule: " + schedule.getName());
+        }
+        dynamicSchedulerService.triggerNow(id);
+        log.info("Manual trigger requested for schedule '{}'", schedule.getName());
+    }
+
     public Schedule getOrThrow(Long id) {
         return scheduleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Schedule", id));
