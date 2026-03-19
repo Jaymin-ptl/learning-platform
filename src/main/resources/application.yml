@@ -3,10 +3,10 @@ spring:
     name: learning-platform
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/learning_platform}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
-    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:mysql://localhost:3306/learning_platform?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
@@ -18,9 +18,8 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-        default_schema: public
 
   flyway:
     enabled: true
@@ -37,15 +36,15 @@ spring:
       org.quartz.scheduler.instanceId: AUTO
       org.quartz.threadPool.threadCount: 5
       org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
-      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
       org.quartz.jobStore.tablePrefix: QRTZ_
       org.quartz.jobStore.isClustered: false
       org.quartz.jobStore.dataSource: quartzDS
       org.quartz.dataSource.quartzDS.provider: hikaricp
-      org.quartz.dataSource.quartzDS.driver: org.postgresql.Driver
-      org.quartz.dataSource.quartzDS.URL: ${DB_URL:jdbc:postgresql://localhost:5432/learning_platform}
-      org.quartz.dataSource.quartzDS.user: ${DB_USERNAME:postgres}
-      org.quartz.dataSource.quartzDS.password: ${DB_PASSWORD:postgres}
+      org.quartz.dataSource.quartzDS.driver: com.mysql.cj.jdbc.Driver
+      org.quartz.dataSource.quartzDS.URL: ${DB_URL:jdbc:mysql://localhost:3306/learning_platform?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+      org.quartz.dataSource.quartzDS.user: ${DB_USERNAME:root}
+      org.quartz.dataSource.quartzDS.password: ${DB_PASSWORD:root}
       org.quartz.dataSource.quartzDS.maxConnections: 5
 
   ai:
