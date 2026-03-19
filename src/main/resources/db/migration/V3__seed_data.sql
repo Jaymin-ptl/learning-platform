@@ -5,7 +5,7 @@
 -- Default admin user (password: Admin@1234 — change immediately in prod)
 INSERT INTO admin_users (username, email, password, role)
 VALUES ('admin', 'admin@company.com',
-        '$2a$12$RgJyNm6lCXfJzH3R/kxXsueK8WMOJPqJpF1qfK.vYMDo5qr7LJSCC',
+        '$2y$12$TbC4aLPc8oJ3KoxsvGHMpuPebEHfcS2XEA9A1/bNhRaCVeS/ZJ1xq',
         'ADMIN');
 
 -- Sample topics
