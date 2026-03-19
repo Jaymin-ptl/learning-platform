@@ -22,3 +22,28 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.eclipse/
+.settings/
+.project
+.classpath
+*.iws
+
+# Spring Boot local config (contains secrets — never commit)
+src/main/resources/application-local.yml
+src/main/resources/application-local.properties
+
+# Environment files
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
