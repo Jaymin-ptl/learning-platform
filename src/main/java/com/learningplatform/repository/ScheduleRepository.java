@@ -3,6 +3,7 @@ package com.learningplatform.repository;
 import com.learningplatform.domain.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findAllActiveFetchTopicAndChannel();
 
     @Query("SELECT s FROM Schedule s JOIN FETCH s.topic JOIN FETCH s.channel WHERE s.id = :id")
-    Optional<Schedule> findByIdFetchTopicAndChannel(Long id);
+    Optional<Schedule> findByIdFetchTopicAndChannel(@Param("id") Long id);
 
     List<Schedule> findAllByTopicId(Long topicId);
 

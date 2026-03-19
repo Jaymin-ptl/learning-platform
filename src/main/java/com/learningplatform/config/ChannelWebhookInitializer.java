@@ -1,18 +1,18 @@
 package com.learningplatform.config;
 
-import com.learningplatform.domain.TeamsChannel;
 import com.learningplatform.repository.TeamsChannelRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 /**
- * On startup, if TEAMS_DEFAULT_WEBHOOK_URL is set, applies it to any channel
+ * After startup, if TEAMS_DEFAULT_WEBHOOK_URL is set, replaces any channel
  * whose webhook URL is still the placeholder inserted by V4 migration.
+ * Uses a direct UPDATE query to avoid detached-entity lazy-load issues.
  */
 @Component
 @RequiredArgsConstructor
@@ -24,29 +24,20 @@ public class ChannelWebhookInitializer {
     private final AppProperties appProperties;
     private final TeamsChannelRepository teamsChannelRepository;
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
+    @Transactional
     public void applyDefaultWebhookUrl() {
         String defaultUrl = appProperties.getTeams().getDefaultWebhookUrl();
         if (!StringUtils.hasText(defaultUrl)) {
-            log.warn("TEAMS_DEFAULT_WEBHOOK_URL is not set — Teams notifications will fail if channels still have placeholder URLs");
+            log.warn("TEAMS_DEFAULT_WEBHOOK_URL is not set — Teams notifications will fail for channels with placeholder URLs");
             return;
         }
 
-        List<TeamsChannel> channels = teamsChannelRepository.findAll();
-        int updated = 0;
-        for (TeamsChannel channel : channels) {
-            if (channel.getWebhookUrl() == null || channel.getWebhookUrl().startsWith(PLACEHOLDER_PREFIX)) {
-                channel.setWebhookUrl(defaultUrl);
-                teamsChannelRepository.save(channel);
-                log.info("Updated webhook URL for channel '{}' from placeholder to real Teams webhook", channel.getName());
-                updated++;
-            }
-        }
-
-        if (updated == 0) {
-            log.info("All channels already have real webhook URLs — no updates needed");
+        int updated = teamsChannelRepository.updatePlaceholderWebhookUrls(defaultUrl, PLACEHOLDER_PREFIX);
+        if (updated > 0) {
+            log.info("Applied TEAMS_DEFAULT_WEBHOOK_URL to {} channel(s) that had placeholder webhook URLs", updated);
         } else {
-            log.info("Applied TEAMS_DEFAULT_WEBHOOK_URL to {} channel(s)", updated);
+            log.info("No channels with placeholder webhook URLs found — nothing to update");
         }
     }
 }
