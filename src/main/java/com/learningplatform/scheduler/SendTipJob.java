@@ -36,7 +36,7 @@ public class SendTipJob implements Job {
 
         log.info("Executing SendTipJob for scheduleId={}, triggeredBy={}", scheduleId, triggeredBy);
 
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+        Schedule schedule = scheduleRepository.findByIdFetchTopicAndChannel(scheduleId).orElse(null);
         if (schedule == null || !schedule.isActive()) {
             log.warn("Schedule {} not found or inactive — skipping", scheduleId);
             return;
