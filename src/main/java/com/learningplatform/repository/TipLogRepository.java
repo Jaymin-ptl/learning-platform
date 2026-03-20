@@ -3,6 +3,7 @@ package com.learningplatform.repository;
 import com.learningplatform.domain.TipLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +22,7 @@ public interface TipLogRepository extends JpaRepository<TipLog, Long> {
 
     @Query("SELECT COUNT(t) FROM TipLog t WHERE t.status = :status")
     long countByStatus(@Param("status") TipLog.Status status);
+
+    @Query("SELECT t.generatedTip FROM TipLog t WHERE t.topic.id = :topicId AND t.status = 'SENT' ORDER BY t.createdAt DESC")
+    List<String> findRecentTipContentByTopicId(@Param("topicId") Long topicId, Pageable pageable);
 }

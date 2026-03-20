@@ -45,6 +45,21 @@ public class TipLog {
     @Builder.Default
     private String triggeredBy = "SCHEDULER";
 
+    @Column(name = "prompt_used", columnDefinition = "TEXT")
+    private String promptUsed;
+
+    @Column(name = "model_used", length = 100)
+    private String modelUsed;
+
+    @Column(name = "prompt_tokens")
+    private Integer promptTokens;
+
+    @Column(name = "completion_tokens")
+    private Integer completionTokens;
+
+    @Column(name = "total_tokens")
+    private Integer totalTokens;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

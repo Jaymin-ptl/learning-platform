@@ -5,6 +5,7 @@ import com.learningplatform.domain.TipLog;
 import com.learningplatform.repository.ScheduleRepository;
 import com.learningplatform.service.TipGeneratorService;
 import com.learningplatform.service.TipLogService;
+import com.learningplatform.service.TipResult;
 import com.learningplatform.service.TeamsNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,20 +43,20 @@ public class SendTipJob implements Job {
             return;
         }
 
-        String generatedTip = null;
+        TipResult tipResult = null;
         try {
-            generatedTip = tipGeneratorService.generateTip(schedule.getTopic());
-            teamsNotificationService.sendTip(schedule.getChannel(), schedule.getTopic(), generatedTip);
+            tipResult = tipGeneratorService.generateTip(schedule.getTopic());
+            teamsNotificationService.sendTip(schedule.getChannel(), schedule.getTopic(), tipResult.content());
 
             tipLogService.save(schedule, schedule.getTopic(), schedule.getChannel(),
-                    generatedTip, TipLog.Status.SENT, null, triggeredBy);
+                    tipResult.content(), TipLog.Status.SENT, null, triggeredBy, tipResult);
 
             log.info("Tip sent successfully for schedule '{}'", schedule.getName());
         } catch (Exception ex) {
             log.error("Failed to send tip for schedule '{}': {}", schedule.getName(), ex.getMessage(), ex);
             tipLogService.save(schedule, schedule.getTopic(), schedule.getChannel(),
-                    generatedTip != null ? generatedTip : "Generation failed",
-                    TipLog.Status.FAILED, ex.getMessage(), triggeredBy);
+                    tipResult != null ? tipResult.content() : "Generation failed",
+                    TipLog.Status.FAILED, ex.getMessage(), triggeredBy, tipResult);
         }
     }
 }

@@ -4,6 +4,7 @@ import com.learningplatform.domain.Schedule;
 import com.learningplatform.domain.TeamsChannel;
 import com.learningplatform.domain.TipLog;
 import com.learningplatform.domain.Topic;
+import com.learningplatform.service.TipResult;
 import com.learningplatform.dto.response.TipLogResponse;
 import com.learningplatform.repository.TipLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class TipLogService {
     @Transactional
     public TipLog save(Schedule schedule, Topic topic, TeamsChannel channel,
                        String generatedTip, TipLog.Status status,
-                       String errorMessage, String triggeredBy) {
+                       String errorMessage, String triggeredBy, TipResult tipResult) {
         TipLog log = TipLog.builder()
                 .schedule(schedule)
                 .topic(topic)
@@ -32,6 +33,11 @@ public class TipLogService {
                 .status(status)
                 .errorMessage(errorMessage)
                 .triggeredBy(triggeredBy)
+                .promptUsed(tipResult != null ? tipResult.promptUsed() : null)
+                .modelUsed(tipResult != null ? tipResult.modelUsed() : null)
+                .promptTokens(tipResult != null ? tipResult.promptTokens() : null)
+                .completionTokens(tipResult != null ? tipResult.completionTokens() : null)
+                .totalTokens(tipResult != null ? tipResult.totalTokens() : null)
                 .build();
         return tipLogRepository.save(log);
     }
@@ -69,6 +75,11 @@ public class TipLogService {
                 .status(tipLog.getStatus())
                 .errorMessage(tipLog.getErrorMessage())
                 .triggeredBy(tipLog.getTriggeredBy())
+                .promptUsed(tipLog.getPromptUsed())
+                .modelUsed(tipLog.getModelUsed())
+                .promptTokens(tipLog.getPromptTokens())
+                .completionTokens(tipLog.getCompletionTokens())
+                .totalTokens(tipLog.getTotalTokens())
                 .createdAt(tipLog.getCreatedAt())
                 .build();
     }

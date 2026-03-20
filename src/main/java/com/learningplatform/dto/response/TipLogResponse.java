@@ -20,5 +20,10 @@ public class TipLogResponse {
     private Status status;
     private String errorMessage;
     private String triggeredBy;
+    private String promptUsed;
+    private String modelUsed;
+    private Integer promptTokens;
+    private Integer completionTokens;
+    private Integer totalTokens;
     private OffsetDateTime createdAt;
 }
