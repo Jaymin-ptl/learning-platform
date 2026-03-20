@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.net.URI;
 import java.util.Map;
 
 @Service
@@ -29,7 +30,7 @@ public class TeamsNotificationService {
 
         try {
             webClient.post()
-                    .uri(channel.getWebhookUrl())
+                    .uri(URI.create(channel.getWebhookUrl()))
                     .bodyValue(adaptiveCard)
                     .retrieve()
                     .toBodilessEntity()
