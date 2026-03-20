@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ public class TipGeneratorService {
 
     private final ChatClient chatClient;
     private final TipLogRepository tipLogRepository;
+
+    @Value("${spring.ai.openai.chat.options.model:gpt-4o}")
+    private String configuredModel;
 
     public TipResult generateTip(Topic topic) {
         List<String> recentTips = tipLogRepository
@@ -42,7 +46,7 @@ public class TipGeneratorService {
 
         String content = response.getResult().getOutput().getContent();
 
-        String modelUsed = null;
+        String modelUsed = configuredModel;
         Integer promptTokens = null;
         Integer completionTokens = null;
         Integer totalTokens = null;
@@ -54,9 +58,8 @@ public class TipGeneratorService {
                 completionTokens = usage.getGenerationTokens() != null ? usage.getGenerationTokens().intValue() : null;
                 totalTokens = usage.getTotalTokens() != null ? usage.getTotalTokens().intValue() : null;
             }
-            modelUsed = response.getMetadata().getModel();
         } catch (Exception ex) {
-            log.warn("Could not extract AI metadata: {}", ex.getMessage());
+            log.warn("Could not extract AI usage metadata: {}", ex.getMessage());
         }
 
         log.info("Tip generated for topic '{}' — tokens: prompt={} completion={} total={}",
