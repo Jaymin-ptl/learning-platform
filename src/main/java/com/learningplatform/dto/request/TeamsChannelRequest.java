@@ -14,8 +14,8 @@ public class TeamsChannelRequest {
 
     @NotBlank(message = "Webhook URL is required")
     @Pattern(
-        regexp = "^https://.*\\.webhook\\.office\\.com/.*$",
-        message = "Must be a valid Microsoft Teams webhook URL"
+        regexp = "^https://(.*\\.webhook\\.office\\.com|.*\\.logic\\.azure\\.com)/.*$",
+        message = "Must be a valid Microsoft Teams webhook URL (webhook.office.com or logic.azure.com)"
     )
     private String webhookUrl;
 

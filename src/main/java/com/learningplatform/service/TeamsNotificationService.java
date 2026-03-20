@@ -47,8 +47,8 @@ public class TeamsNotificationService {
     }
 
     /**
-     * Builds a Teams-compatible Adaptive Card payload.
-     * Uses the "Office 365 Connector" MessageCard format for maximum compatibility.
+     * Builds a Teams Adaptive Card payload compatible with the new Teams
+     * "Send webhook alert to a channel" Power Automate workflow.
      */
     private Map<String, Object> buildAdaptiveCard(Topic topic, String tipContent) {
         String difficultyEmoji = switch (topic.getDifficulty()) {
@@ -57,25 +57,42 @@ public class TeamsNotificationService {
             case ADVANCED -> "🔴";
         };
 
-        // Format tip content: replace markdown bold (**text**) with Teams-compatible format
-        String formattedContent = tipContent
-                .replace("**", "**")  // Teams supports markdown bold in facts
-                .replace("\n", "\n\n");
+        String subtitle = difficultyEmoji + " " + topic.getDifficulty().name()
+                + (topic.getTags() != null && !topic.getTags().isEmpty() ? " | " + topic.getTags() : "");
 
-        return Map.of(
-                "@type", "MessageCard",
-                "@context", "http://schema.org/extensions",
-                "themeColor", "0076D7",
-                "summary", "Daily IT Tip: " + topic.getName(),
-                "sections", new Object[]{
-                        Map.of(
-                                "activityTitle", "💡 Daily IT Tip — " + topic.getName(),
-                                "activitySubtitle", difficultyEmoji + " " + topic.getDifficulty().name()
-                                        + " | Tags: " + (topic.getTags() != null ? topic.getTags() : ""),
-                                "activityText", formattedContent,
-                                "markdown", true
-                        )
-                }
-        );
+        Map<String, Object> titleBlock = new java.util.LinkedHashMap<>();
+        titleBlock.put("type", "TextBlock");
+        titleBlock.put("size", "Large");
+        titleBlock.put("weight", "Bolder");
+        titleBlock.put("text", "💡 Daily IT Tip — " + topic.getName());
+        titleBlock.put("wrap", true);
+
+        Map<String, Object> subtitleBlock = new java.util.LinkedHashMap<>();
+        subtitleBlock.put("type", "TextBlock");
+        subtitleBlock.put("text", subtitle);
+        subtitleBlock.put("isSubtle", true);
+        subtitleBlock.put("wrap", true);
+
+        Map<String, Object> contentBlock = new java.util.LinkedHashMap<>();
+        contentBlock.put("type", "TextBlock");
+        contentBlock.put("text", tipContent);
+        contentBlock.put("wrap", true);
+
+        Map<String, Object> adaptiveCard = new java.util.LinkedHashMap<>();
+        adaptiveCard.put("type", "AdaptiveCard");
+        adaptiveCard.put("$schema", "http://adaptivecards.io/schemas/adaptive-card.json");
+        adaptiveCard.put("version", "1.2");
+        adaptiveCard.put("body", new Object[]{titleBlock, subtitleBlock, contentBlock});
+
+        Map<String, Object> attachment = new java.util.LinkedHashMap<>();
+        attachment.put("contentType", "application/vnd.microsoft.card.adaptive");
+        attachment.put("contentUrl", null);
+        attachment.put("content", adaptiveCard);
+
+        Map<String, Object> payload = new java.util.LinkedHashMap<>();
+        payload.put("type", "message");
+        payload.put("attachments", new Object[]{attachment});
+
+        return payload;
     }
 }
