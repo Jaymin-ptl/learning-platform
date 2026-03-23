@@ -90,9 +90,7 @@ import { Difficulty } from '../../../core/models/topic.model';
               <mat-label>Custom Prompt</mat-label>
               <textarea matInput formControlName="customPrompt" rows="10"
                         placeholder="Leave empty to use the default prompt..."></textarea>
-              <mat-hint>
-                Available placeholders: {topic}, {description}, {difficulty}, {tags}, {date}, {recentSubtopics}
-              </mat-hint>
+              <mat-hint>{{ placeholderHint }}</mat-hint>
             </mat-form-field>
           </mat-expansion-panel>
 
@@ -160,6 +158,7 @@ export class TopicFormComponent implements OnInit {
   });
 
   difficulties: Difficulty[] = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+  placeholderHint = 'Available placeholders: {topic}, {description}, {difficulty}, {tags}, {date}, {recentSubtopics}';
   isEdit = false;
   saving = false;
   private topicId?: number;

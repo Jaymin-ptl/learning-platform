@@ -232,8 +232,7 @@ export class TopicListComponent implements OnInit {
 
 // Inline preview dialog
 import { Component as Comp2, Inject as Inj2 } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Comp2({ selector: 'app-preview-dialog', standalone: true, imports: [MatDialogModule, MatButtonModule],
   template: `
