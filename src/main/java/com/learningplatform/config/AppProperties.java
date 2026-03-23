@@ -9,7 +9,6 @@ public class AppProperties {
 
     private Security security = new Security();
     private Teams teams = new Teams();
-    private Ai ai = new Ai();
 
     @Data
     public static class Security {
@@ -24,8 +23,4 @@ public class AppProperties {
         private int readTimeoutSeconds = 15;
     }
 
-    @Data
-    public static class Ai {
-        private String tipPromptTemplate;
-    }
 }

@@ -77,22 +77,3 @@ app:
     default-webhook-url: ${TEAMS_DEFAULT_WEBHOOK_URL:}
     connect-timeout-seconds: 10
     read-timeout-seconds: 15
-  ai:
-    tip-prompt-template: |
-      You are an IT learning assistant helping professionals grow their skills.
-      Generate a practical, concise tip about the following topic: "{topic}".
-      Topic description: "{description}"
-      Difficulty level: {difficulty}
-      Tags: {tags}
-
-      Format your response as follows:
-      **Title**: [A catchy title for the tip]
-      **Summary**: [One sentence summary]
-      **Details**:
-      - [Point 1]
-      - [Point 2]
-      - [Point 3]
-      **Example**: [A brief practical example]
-      **Pro Tip**: [One advanced insight]
-
-      Keep it concise, practical and relevant for IT professionals.

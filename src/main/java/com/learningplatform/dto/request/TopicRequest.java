@@ -22,5 +22,7 @@ public class TopicRequest {
     @Size(max = 500, message = "Tags must not exceed 500 characters")
     private String tags;
 
+    private String customPrompt;
+
     private boolean active = true;
 }

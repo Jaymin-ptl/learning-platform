@@ -15,6 +15,7 @@ public class TopicResponse {
     private String description;
     private Difficulty difficulty;
     private List<String> tags;
+    private String customPrompt;
     private boolean active;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;

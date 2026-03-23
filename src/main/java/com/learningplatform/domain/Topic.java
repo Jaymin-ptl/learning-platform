@@ -34,6 +34,9 @@ public class Topic {
     @Column(length = 500)
     private String tags;
 
+    @Column(name = "custom_prompt", columnDefinition = "TEXT")
+    private String customPrompt;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;

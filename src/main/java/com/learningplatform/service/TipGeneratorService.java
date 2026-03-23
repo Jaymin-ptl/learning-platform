@@ -37,7 +37,10 @@ public class TipGeneratorService {
                         .collect(Collectors.joining("; "));
 
         String prompt = buildPrompt(topic, recentContext);
-        log.debug("Generating tip for topic '{}', avoiding recent: {}", topic.getName(), recentContext);
+        log.debug("Generating tip for topic '{}' using {} prompt, avoiding recent: {}",
+                topic.getName(),
+                (topic.getCustomPrompt() != null && !topic.getCustomPrompt().isBlank()) ? "custom" : "default",
+                recentContext);
 
         ChatResponse response = chatClient.prompt()
                 .user(prompt)
@@ -69,42 +72,48 @@ public class TipGeneratorService {
     }
 
     private String buildPrompt(Topic topic, String recentSubtopics) {
-        return """
-                You are an expert IT learning assistant delivering concise, high-value tips to software developers.
+        String template = (topic.getCustomPrompt() != null && !topic.getCustomPrompt().isBlank())
+                ? topic.getCustomPrompt()
+                : DEFAULT_PROMPT_TEMPLATE;
 
-                Topic: %s
-                Description: %s
-                Difficulty: %s
-                Tags: %s
-                Today's date: %s
-                Recently shared subtopics (DO NOT repeat these): %s
-
-                Your task: Pick ONE specific, narrow subtopic within the topic above that a developer can act on TODAY.
-                Avoid generic overviews. Be specific and opinionated.
-
-                Format your response EXACTLY like this (keep total under 200 words):
-
-                **Tip**: [One-line title naming the specific subtopic]
-                **What**: [1-2 sentences — what this is and why it matters right now]
-                **How**:
-                - [Step or code snippet 1]
-                - [Step or code snippet 2]
-                - [Step or code snippet 3]
-                **Pro tip**: [One sentence — a gotcha or advanced insight]
-                **Learn more**:
-                - [Title](URL) — official docs or trusted resource
-                - [Title](URL) — optional second link
-
-                Be direct. No fluff. Every word must be useful to a working developer.
-                """.formatted(
-                topic.getName(),
-                topic.getDescription(),
-                topic.getDifficulty().name(),
-                topic.getTags() != null ? topic.getTags() : "",
-                LocalDate.now(),
-                recentSubtopics
-        );
+        return template
+                .replace("{topic}", topic.getName())
+                .replace("{description}", topic.getDescription())
+                .replace("{difficulty}", topic.getDifficulty().name())
+                .replace("{tags}", topic.getTags() != null ? topic.getTags() : "")
+                .replace("{date}", LocalDate.now().toString())
+                .replace("{recentSubtopics}", recentSubtopics);
     }
+
+    // Placeholders available for custom prompts: {topic}, {description}, {difficulty}, {tags}, {date}, {recentSubtopics}
+    private static final String DEFAULT_PROMPT_TEMPLATE = """
+            You are an expert IT learning assistant delivering concise, high-value tips to software developers.
+
+            Topic: {topic}
+            Description: {description}
+            Difficulty: {difficulty}
+            Tags: {tags}
+            Today's date: {date}
+            Recently shared subtopics (DO NOT repeat these): {recentSubtopics}
+
+            Your task: Pick ONE specific, narrow subtopic within the topic above that a developer can act on TODAY.
+            Avoid generic overviews. Be specific and opinionated.
+
+            Format your response EXACTLY like this (keep total under 200 words):
+
+            **Tip**: [One-line title naming the specific subtopic]
+            **What**: [1-2 sentences — what this is and why it matters right now]
+            **How**:
+            - [Step or code snippet 1]
+            - [Step or code snippet 2]
+            - [Step or code snippet 3]
+            **Pro tip**: [One sentence — a gotcha or advanced insight]
+            **Learn more**:
+            - [Title](URL) — official docs or trusted resource
+            - [Title](URL) — optional second link
+
+            Be direct. No fluff. Every word must be useful to a working developer.
+            """;
 
     private String extractFirstLine(String tip) {
         if (tip == null) return "";
