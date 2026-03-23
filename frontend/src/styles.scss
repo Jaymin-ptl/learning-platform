@@ -1,0 +1,23 @@
+@use '@angular/material' as mat;
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+// Snackbar overrides
+.snack-error .mdc-snackbar__surface { background: #d32f2f !important; }
+.snack-success .mdc-snackbar__surface { background: #388e3c !important; }
+
+// Table adjustments
+.mat-mdc-row td.mat-mdc-cell { border-bottom-color: #f0f0f0; }
+.mat-mdc-header-row { background: #fafafa; }
+
+// Paginator
+.mat-mdc-paginator { border-top: 1px solid #e0e0e0; }
+
+// Card defaults
+.mat-mdc-card { box-shadow: 0 1px 4px rgba(0,0,0,.08) !important; }
