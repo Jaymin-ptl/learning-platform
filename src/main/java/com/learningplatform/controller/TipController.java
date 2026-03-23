@@ -5,6 +5,7 @@ import com.learningplatform.dto.response.ApiResponse;
 import com.learningplatform.dto.response.TipLogResponse;
 import com.learningplatform.scheduler.DynamicSchedulerService;
 import com.learningplatform.service.TipGeneratorService;
+import com.learningplatform.service.TipResult;
 import com.learningplatform.service.TipLogService;
 import com.learningplatform.service.TopicService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,8 +59,8 @@ public class TipController {
     @Operation(summary = "Generate a tip preview for a topic (AI call only, no Teams send)")
     public ResponseEntity<ApiResponse<String>> preview(@PathVariable Long topicId) {
         var topic = topicService.getOrThrow(topicId);
-        String tip = tipGeneratorService.generateTip(topic);
-        return ResponseEntity.ok(ApiResponse.ok("Preview generated", tip));
+        TipResult result = tipGeneratorService.generateTip(topic);
+        return ResponseEntity.ok(ApiResponse.ok("Preview generated", result.content()));
     }
 
     @PostMapping("/send-now/{scheduleId}")
