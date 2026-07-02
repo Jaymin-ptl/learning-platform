@@ -22,5 +22,10 @@ public class TopicRequest {
     @Size(max = 500, message = "Tags must not exceed 500 characters")
     private String tags;
 
+    /**
+     * Optional per-topic AI prompt template overriding the global default.
+     */
+    private String promptTemplate;
+
     private boolean active = true;
 }

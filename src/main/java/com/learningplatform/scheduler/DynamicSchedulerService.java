@@ -28,6 +28,7 @@ public class DynamicSchedulerService {
     @PostConstruct
     public void loadSchedulesOnStartup() {
         log.info("Loading active schedules from DB into Quartz...");
+        removeStaleJobs();
         scheduleRepository.findAllActiveFetchTopicAndChannel()
                 .forEach(schedule -> {
                     try {
@@ -37,6 +38,22 @@ public class DynamicSchedulerService {
                     }
                 });
         log.info("Quartz schedule loading complete");
+    }
+
+    /**
+     * Deletes every persisted tip job so the DB schedules table is the single
+     * source of truth on startup. Without this, jobs whose schedules were
+     * deactivated (e.g. by a migration) would keep firing no-op executions
+     * from the JDBC job store forever.
+     */
+    private void removeStaleJobs() {
+        try {
+            for (JobKey jobKey : quartzScheduler.getJobKeys(GroupMatcher.jobGroupEquals(JOB_GROUP))) {
+                quartzScheduler.deleteJob(jobKey);
+            }
+        } catch (org.quartz.SchedulerException ex) {
+            log.error("Failed to clear stale Quartz tip jobs on startup: {}", ex.getMessage());
+        }
     }
 
     public void scheduleJob(Schedule schedule) {

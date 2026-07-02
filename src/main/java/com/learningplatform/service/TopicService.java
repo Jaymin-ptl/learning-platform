@@ -51,6 +51,7 @@ public class TopicService {
                 .description(request.getDescription())
                 .difficulty(request.getDifficulty())
                 .tags(request.getTags())
+                .promptTemplate(request.getPromptTemplate())
                 .active(request.isActive())
                 .build();
         return toResponse(topicRepository.save(topic));
@@ -67,6 +68,7 @@ public class TopicService {
         topic.setDescription(request.getDescription());
         topic.setDifficulty(request.getDifficulty());
         topic.setTags(request.getTags());
+        topic.setPromptTemplate(request.getPromptTemplate());
         topic.setActive(request.isActive());
         return toResponse(topicRepository.save(topic));
     }
@@ -94,6 +96,7 @@ public class TopicService {
                 .description(topic.getDescription())
                 .difficulty(topic.getDifficulty())
                 .tags(tagList)
+                .promptTemplate(topic.getPromptTemplate())
                 .active(topic.isActive())
                 .createdAt(topic.getCreatedAt())
                 .updatedAt(topic.getUpdatedAt())

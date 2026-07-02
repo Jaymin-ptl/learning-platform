@@ -34,6 +34,16 @@ public class Topic {
     @Column(length = 500)
     private String tags;
 
+    /**
+     * Optional per-topic AI prompt template. When set, it overrides the global
+     * default from app.ai.tip-prompt-template so each topic can define its own
+     * message format (code puzzle vs news brief vs keyword explainer).
+     * Supports placeholders: {topic}, {description}, {difficulty}, {tags},
+     * {current_date}, {recent_tips}.
+     */
+    @Column(name = "prompt_template", columnDefinition = "TEXT")
+    private String promptTemplate;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;

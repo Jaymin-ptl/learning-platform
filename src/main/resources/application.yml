@@ -54,7 +54,7 @@ spring:
         options:
           model: ${AI_MODEL:claude-sonnet-4-6}
           temperature: 0.7
-          max-tokens: 500
+          max-tokens: 1024
 
 server:
   port: ${SERVER_PORT:8080}
@@ -78,8 +78,12 @@ app:
     connect-timeout-seconds: 10
     read-timeout-seconds: 15
   ai:
+    # Global fallback template. Topics can override it with their own
+    # prompt_template (see V7 migration) to control the message format.
+    # Placeholders: {topic} {description} {difficulty} {tags} {current_date} {recent_tips}
     tip-prompt-template: |
-      You are an IT learning assistant helping professionals grow their skills.
+      You are an IT learning assistant helping developers at a fintech company
+      (Java + Angular + AI + Docker stack) grow their skills.
       Generate a practical, concise tip about the following topic: "{topic}".
       Topic description: "{description}"
       Difficulty level: {difficulty}
@@ -92,7 +96,15 @@ app:
       - [Point 1]
       - [Point 2]
       - [Point 3]
-      **Example**: [A brief practical example]
+      **Example**: [A brief practical code or command example]
       **Pro Tip**: [One advanced insight]
 
-      Keep it concise, practical and relevant for IT professionals.
+      Rules:
+      - Keep it under 300 words, practical and relevant for IT professionals.
+      - Use simple markdown only (bold, bullet lists, fenced code blocks).
+      - End with exactly one line: "Learn more: <URL>" pointing to a real,
+        stable page from official documentation or a well-known reputable
+        source. Never invent URLs.
+
+      Today is {current_date}. Do not repeat these recently covered items:
+      {recent_tips}
