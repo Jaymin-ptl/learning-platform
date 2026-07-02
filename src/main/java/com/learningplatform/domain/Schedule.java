@@ -50,6 +50,24 @@ public class Schedule {
     @Builder.Default
     private String timezone = "UTC";
 
+    /**
+     * SINGLE: one message per firing (default).
+     * QUESTION_ANSWER: the generated content is split on the ===ANSWER===
+     * delimiter — the question is sent immediately and the answer follows
+     * as a separate message after answerDelayMinutes.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "message_mode", nullable = false, length = 20)
+    @Builder.Default
+    private MessageMode messageMode = MessageMode.SINGLE;
+
+    /**
+     * Minutes between the question and the answer message.
+     * Only used when messageMode is QUESTION_ANSWER; null falls back to the default.
+     */
+    @Column(name = "answer_delay_minutes")
+    private Integer answerDelayMinutes;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;
@@ -64,4 +82,8 @@ public class Schedule {
 
     @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
     private List<TipLog> tipLogs;
+
+    public enum MessageMode {
+        SINGLE, QUESTION_ANSWER
+    }
 }

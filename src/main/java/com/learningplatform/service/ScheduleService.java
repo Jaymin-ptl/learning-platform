@@ -55,6 +55,9 @@ public class ScheduleService {
                 .sendTimes(sendTimesStored)
                 .cronExpression(cronExpression)
                 .timezone(request.getTimezone())
+                .messageMode(request.getMessageMode() != null
+                        ? request.getMessageMode() : Schedule.MessageMode.SINGLE)
+                .answerDelayMinutes(request.getAnswerDelayMinutes())
                 .active(request.isActive())
                 .build();
 
@@ -82,6 +85,9 @@ public class ScheduleService {
         schedule.setSendTimes(cronBuilder.toStoredString(request.getSendTimes()));
         schedule.setCronExpression(cronExpression);
         schedule.setTimezone(request.getTimezone());
+        schedule.setMessageMode(request.getMessageMode() != null
+                ? request.getMessageMode() : Schedule.MessageMode.SINGLE);
+        schedule.setAnswerDelayMinutes(request.getAnswerDelayMinutes());
         schedule.setActive(request.isActive());
 
         schedule = scheduleRepository.save(schedule);
@@ -143,6 +149,8 @@ public class ScheduleService {
                 .sendTimes(sendTimes)
                 .cronExpression(schedule.getCronExpression())
                 .timezone(schedule.getTimezone())
+                .messageMode(schedule.getMessageMode())
+                .answerDelayMinutes(schedule.getAnswerDelayMinutes())
                 .active(schedule.isActive())
                 .createdAt(schedule.getCreatedAt())
                 .updatedAt(schedule.getUpdatedAt())

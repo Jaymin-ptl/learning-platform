@@ -25,7 +25,18 @@ public class TeamsNotificationService {
      * @param tipContent the AI-generated tip content
      */
     public void sendTip(TeamsChannel channel, Topic topic, String tipContent) {
-        Map<String, Object> adaptiveCard = buildAdaptiveCard(topic, tipContent);
+        send(channel, topic, "💡 Daily IT Tip — " + topic.getName(), tipContent);
+    }
+
+    /**
+     * Sends the delayed answer reveal for a two-part question/answer schedule.
+     */
+    public void sendAnswer(TeamsChannel channel, Topic topic, String answerContent) {
+        send(channel, topic, "✅ Puzzle Answer — " + topic.getName(), answerContent);
+    }
+
+    private void send(TeamsChannel channel, Topic topic, String title, String content) {
+        Map<String, Object> adaptiveCard = buildAdaptiveCard(topic, title, content);
 
         try {
             webClient.post()
@@ -50,7 +61,7 @@ public class TeamsNotificationService {
      * Builds a Teams-compatible Adaptive Card payload.
      * Uses the "Office 365 Connector" MessageCard format for maximum compatibility.
      */
-    private Map<String, Object> buildAdaptiveCard(Topic topic, String tipContent) {
+    private Map<String, Object> buildAdaptiveCard(Topic topic, String title, String tipContent) {
         String difficultyEmoji = switch (topic.getDifficulty()) {
             case BEGINNER -> "🟢";
             case INTERMEDIATE -> "🟡";
@@ -66,10 +77,10 @@ public class TeamsNotificationService {
                 "@type", "MessageCard",
                 "@context", "http://schema.org/extensions",
                 "themeColor", "0076D7",
-                "summary", "Daily IT Tip: " + topic.getName(),
+                "summary", title,
                 "sections", new Object[]{
                         Map.of(
-                                "activityTitle", "💡 Daily IT Tip — " + topic.getName(),
+                                "activityTitle", title,
                                 "activitySubtitle", difficultyEmoji + " " + topic.getDifficulty().name()
                                         + " | Tags: " + (topic.getTags() != null ? topic.getTags() : ""),
                                 "activityText", formattedContent,

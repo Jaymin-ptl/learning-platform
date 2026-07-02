@@ -9,6 +9,9 @@ import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.TimeZone;
 
 @Service
@@ -18,6 +21,10 @@ public class DynamicSchedulerService {
 
     private static final String JOB_GROUP = "TIP_JOBS";
     private static final String TRIGGER_GROUP = "TIP_TRIGGERS";
+    // Separate group: answer jobs are one-shot follow-ups that must survive
+    // the TIP_JOBS cleanup performed on startup.
+    private static final String ANSWER_JOB_GROUP = "ANSWER_JOBS";
+    private static final String ANSWER_TRIGGER_GROUP = "ANSWER_TRIGGERS";
 
     private final Scheduler quartzScheduler;
     private final com.learningplatform.repository.ScheduleRepository scheduleRepository;
@@ -106,6 +113,38 @@ public class DynamicSchedulerService {
             }
         } catch (org.quartz.SchedulerException ex) {
             throw new SchedulerException("Failed to remove Quartz job for scheduleId: " + scheduleId, ex);
+        }
+    }
+
+    /**
+     * Schedules a one-shot job that posts the answer reveal for a
+     * QUESTION_ANSWER schedule after the given delay. The answer content is
+     * carried in the JobDataMap and persisted by the JDBC job store, so it
+     * survives restarts; the non-durable job removes itself after firing.
+     */
+    public void scheduleAnswerJob(Long scheduleId, String answerContent, int delayMinutes) {
+        try {
+            // Unique identity per firing so consecutive puzzles never collide
+            String identity = "answer-" + scheduleId + "-" + System.currentTimeMillis();
+
+            JobDetail jobDetail = JobBuilder.newJob(SendAnswerJob.class)
+                    .withIdentity(JobKey.jobKey(identity, ANSWER_JOB_GROUP))
+                    .usingJobData(SendAnswerJob.SCHEDULE_ID_KEY, scheduleId)
+                    .usingJobData(SendAnswerJob.ANSWER_CONTENT_KEY, answerContent)
+                    .build();
+
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity(TriggerKey.triggerKey(identity, ANSWER_TRIGGER_GROUP))
+                    .startAt(Date.from(Instant.now().plus(Duration.ofMinutes(delayMinutes))))
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            // If the app was down at answer time, send it as soon as we are back
+                            .withMisfireHandlingInstructionFireNow())
+                    .build();
+
+            quartzScheduler.scheduleJob(jobDetail, trigger);
+            log.info("Answer reveal for scheduleId={} queued in {} minutes", scheduleId, delayMinutes);
+        } catch (org.quartz.SchedulerException ex) {
+            throw new SchedulerException("Failed to schedule answer job for scheduleId: " + scheduleId, ex);
         }
     }
 

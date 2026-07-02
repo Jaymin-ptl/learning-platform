@@ -77,19 +77,29 @@ public class TipGeneratorService {
                 .getContent();
 
         String summaries = recent.stream()
-                .map(logEntry -> firstLine(logEntry.getGeneratedTip()))
+                .map(logEntry -> summaryLine(logEntry.getGeneratedTip()))
                 .filter(line -> !line.isBlank())
+                .distinct()
                 .map(line -> "- " + line)
                 .collect(Collectors.joining("\n"));
 
         return summaries.isBlank() ? "(none yet)" : summaries;
     }
 
-    private String firstLine(String tip) {
+    /**
+     * Prefers a "**Concept**:" line (puzzles start with an identical header
+     * every day, so the first line carries no signal there); falls back to
+     * the first line of the tip.
+     */
+    private String summaryLine(String tip) {
         if (tip == null) {
             return "";
         }
-        String line = tip.strip().lines().findFirst().orElse("").strip();
+        String line = tip.strip().lines()
+                .map(String::strip)
+                .filter(l -> l.startsWith("**Concept**"))
+                .findFirst()
+                .orElseGet(() -> tip.strip().lines().findFirst().orElse("").strip());
         return line.length() > RECENT_TIP_SUMMARY_MAX_LENGTH
                 ? line.substring(0, RECENT_TIP_SUMMARY_MAX_LENGTH)
                 : line;
